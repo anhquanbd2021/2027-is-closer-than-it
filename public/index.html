@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="2027 Is Closer Than It Lab — the Readiness Treadmill: two weekly-tick tracks race a drifting readiness bar to a fixed deadline.">
+  <title>2027 Is Closer Than It Lab — the Readiness Treadmill</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,700;1,700&family=Public+Sans:wght@400..800&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+<!-- pb-shell --><link rel="stylesheet" href="./pb-shell.css"><!-- pb-shell --><!-- pb-back --><link rel="stylesheet" href="./pb-back.css"><!-- pb-back --></head>
+<body>
+<a class="skip-link" href="#ledger">Skip to the ledger</a>
+<main>
+  <nav aria-label="Primary"><a aria-current="page" href="/">Lab</a><a href="/guide.html">Guide</a><a href="https://github.com/anhquanbd2021/2027-is-closer-than-it">Source</a></nav>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">2027 Is Closer Than It Lab · the Readiness Treadmill</p>
+      <h1>The bar moves<br>every week.</h1>
+      <p class="lede">Two engineers get the same runway to the same deadline. The <em>starter</em> ships v0 on week zero and compounds skill every iteration. The <em>waiter</em> studies until study clears the readiness bar — while the bar keeps drifting with the field. Run the weeks and watch which track the deadline finds first.</p>
+    </div>
+    <p class="warning"><strong>Safe educational model.</strong> A deterministic simulation, not a predictor — every number below comes from six parameters you can see and slide.</p>
+  </header>
+
+  <section class="panel controls" aria-labelledby="run-title">
+    <div class="section-heading">
+      <div><p class="eyebrow">Run configuration</p><h2 id="run-title">Set the runway</h2></div>
+      <button id="run-weeks" type="button">Run the weeks</button>
+    </div>
+    <div class="preset-row" id="scenario-buttons" role="group" aria-label="Scenario presets"></div>
+    <div class="slider-grid">
+      <div class="slider">
+        <label for="ctl-drift">Field drift <output id="out-drift" for="ctl-drift"></output></label>
+        <input id="ctl-drift" type="range" min="0" max="0.09" step="0.005" value="0.02" aria-describedby="hint-drift">
+        <p class="hint" id="hint-drift">How fast "ready" moves, per week.</p>
+      </div>
+      <div class="slider">
+        <label for="ctl-study">Study rate <output id="out-study" for="ctl-study"></output></label>
+        <input id="ctl-study" type="range" min="0.01" max="0.12" step="0.005" value="0.05" aria-describedby="hint-study">
+        <p class="hint" id="hint-study">What the waiter banks in prep, per week.</p>
+      </div>
+      <div class="slider">
+        <label for="ctl-iter">Iteration cadence <output id="out-iter" for="ctl-iter"></output></label>
+        <input id="ctl-iter" type="range" min="1" max="8" step="1" value="2" aria-describedby="hint-iter">
+        <p class="hint" id="hint-iter">Weeks between shipped iterations.</p>
+      </div>
+      <div class="slider">
+        <label for="ctl-weeks">Runway <output id="out-weeks" for="ctl-weeks"></output></label>
+        <input id="ctl-weeks" type="range" min="20" max="104" step="4" value="64" aria-describedby="hint-weeks">
+        <p class="hint" id="hint-weeks">Weeks left on the calendar.</p>
+      </div>
+    </div>
+    <p class="muted">The waiter may ship only when accumulated study clears the bar: <code>study × week ≥ barStart + drift × week</code>. When drift ≥ study the inequality never holds — the treadmill.</p>
+  </section>
+
+  <section class="panel ledger" id="ledger" aria-labelledby="ledger-title" tabindex="-1">
+    <div class="section-heading">
+      <div><p class="eyebrow">The week ledger</p><h2 id="ledger-title">Two tracks, one deadline</h2></div>
+      <span id="verdict" class="badge" role="status" aria-live="polite">—</span>
+    </div>
+    <div class="ledger-scroll" tabindex="0" role="region" aria-label="Week-by-week ledger for both tracks">
+      <div class="lane scale-lane" aria-hidden="true">
+        <div class="lane-label"></div>
+        <div class="lane-track"><div class="lane-weeks" id="week-scale"></div></div>
+      </div>
+      <div class="lane">
+        <div class="lane-label"><strong>STARTER</strong><span>ships v0 at week 0</span></div>
+        <div class="lane-track"><div class="lane-weeks" id="weeks-starter"></div></div>
+      </div>
+      <div class="lane">
+        <div class="lane-label"><strong>WAITER</strong><span id="waiter-tag">studies to ready</span></div>
+        <div class="lane-track"><div class="lane-weeks" id="weeks-waiter"><span class="goalpost" id="goalpost" hidden></span><span class="stamp" id="stamp" hidden>NEVER SHIPPED</span></div></div>
+      </div>
+    </div>
+    <p class="muted">Waiter lane: vermilion fill is banked study, the amber tick is the readiness bar for that week, the caret lands where study finally catches it. Indigo squares are shipped iterations; vermilion squares are the waiter's.</p>
+  </section>
+
+  <section class="stat-grid" aria-label="Run results">
+    <article class="panel stat">
+      <span class="stat-label">Starter</span>
+      <strong id="stat-starter">—</strong>
+      <span class="stat-sub" id="stat-starter-sub">—</span>
+    </article>
+    <article class="panel stat">
+      <span class="stat-label">Waiter</span>
+      <strong id="stat-waiter">—</strong>
+      <span class="stat-sub" id="stat-waiter-sub">—</span>
+    </article>
+    <article class="panel stat">
+      <span class="stat-label">Gap at deadline</span>
+      <strong id="stat-gap">—</strong>
+      <span class="stat-sub" id="stat-gap-sub">—</span>
+    </article>
+    <article class="panel stat">
+      <span class="stat-label">Projected ready week</span>
+      <strong id="stat-ready">—</strong>
+      <span class="stat-sub" id="stat-ready-sub">—</span>
+    </article>
+  </section>
+
+  <p class="closing-links"><a href="/guide.html">Read the mechanism guide</a><span class="sep" aria-hidden="true">·</span><a href="https://github.com/anhquanbd2021/2027-is-closer-than-it">Inspect source and tests</a></p>
+</main>
+<script type="module" src="/app.js"></script>
+<!-- pb-shell --><a class="pb-shell" href="https://github.com/anhquanbd2021/2027-is-closer-than-it" title="2027-is-closer-than-it — an Article Playbook demo (view source)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="9" height="9" rx="2" fill="#2dd4bf"/><rect x="13" y="2" width="9" height="9" rx="2" fill="#2dd4bf" opacity=".45"/><rect x="2" y="13" width="9" height="9" rx="2" fill="#2dd4bf" opacity=".45"/><rect x="13" y="13" width="9" height="9" rx="4.5" fill="#2dd4bf"/></svg><b>2027-is-closer-than-it</b><i>DEMO</i></a><!-- pb-shell --><!-- pb-back --><a class="pb-back" id="pb-back" href="https://github.com/anhquanbd2021/2027-is-closer-than-it" title="Back to the article — 2027-is-closer-than-it">← Article <i>PLAYBOOK</i></a><script>(function(){var a=document.getElementById('pb-back');if(!a)return;var h=location.hostname;if(/^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/.test(h)){a.href='//'+h+':'+(/^(localhost|127\.0\.0\.1)$/.test(h)?'1234':'30082')+'/microsites/article.html?slug=2027-is-closer-than-it';}})();</script><!-- pb-back --></body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Guide to the 2027 Is Closer Than It Lab — how the Readiness Treadmill simulation works and what it does not claim.">
+<title>2027 Is Closer Than It Lab Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,700;1,700&family=Public+Sans:wght@400..800&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="/styles.css">
+<!-- pb-shell --><link rel="stylesheet" href="./pb-shell.css"><!-- pb-shell --><!-- pb-back --><link rel="stylesheet" href="./pb-back.css"><!-- pb-back --></head>
+<body>
+<a class="skip-link" href="#tracks">Skip to the guide</a>
+<main>
+  <nav aria-label="Primary"><a href="/">Lab</a><a aria-current="page" href="/guide.html">Guide</a><a href="https://github.com/anhquanbd2021/2027-is-closer-than-it">Source</a></nav>
+
+  <header class="guide-intro">
+    <p class="eyebrow">Mechanism guide</p>
+    <h1>Two tracks, one moving bar</h1>
+    <p class="lede">The lab is a weekly-tick simulation of one claim: skill compounds per shipped iteration, while "ready" drifts with the field. This page maps every control on the Lab tab to the mechanism it exercises.</p>
+    <p class="warning"><strong>Honest limits.</strong> Six knobs, no randomness, no labor market. The model proves a mechanism — that deferral is expensive when the target moves — not a prediction about your career.</p>
+  </header>
+
+  <section class="panel">
+    <p class="eyebrow">Start here</p>
+    <h2>What this demo proves</h2>
+    <p>Press <em>Readiness treadmill</em>: the waiter's study bar rises every week and the amber bar-ticks rise faster. The READY caret exits the right edge of the ledger and the lane is stamped <strong>NEVER SHIPPED</strong>. Press <em>Steady field</em>: the same waiter ships at week 34 — late, seventeen iterations behind the starter, but on the board.</p>
+    <p><a class="try" href="/">Open the ledger</a></p>
+  </section>
+
+  <section class="guide-section" id="tracks">
+    <p class="eyebrow">The mechanism</p>
+    <h2>Controls and what they prove</h2>
+    <div class="control-grid">
+      <article class="panel control"><span class="control-number">Track 01</span><h3>The Starter</h3><p>Ships v0 at week 0, then one iteration every <code>iterWeeks</code>. Each ship adds <code>learnPerIter</code> skill — a step line that clears the bar around week 16 on defaults.</p><dl><dt>Proves</dt><dd>readiness is an output of shipping — the starter crosses the bar by shipping, not before.</dd><dt>Key detail</dt><dd><code>skill = learnPerIter × ships so far</code>; indigo squares mark each ship week.</dd></dl></article>
+      <article class="panel control"><span class="control-number">Track 02</span><h3>The Waiter</h3><p>Banks <code>studyPerWeek</code> of prep and may ship only when study clears the bar for that week. Prep converts to skill on the ship week; after that, iterations compound identically.</p><dl><dt>Proves</dt><dd>study alone never lands on the ledger — it only counts once it ships.</dd><dt>Key detail</dt><dd><code>study × week ≥ barStart + drift × week</code> gates the first ship.</dd></dl></article>
+      <article class="panel control"><span class="control-number">Slider 01</span><h3>Field drift</h3><p>How fast "ready" moves, in skill-units per week — framework releases, new eval expectations, deprecated APIs.</p><dl><dt>Proves</dt><dd>at <code>drift ≥ study</code> the inequality can never hold: this is the treadmill.</dd><dt>Key detail</dt><dd>drag it past the study rate and the caret leaves the frame.</dd></dl></article>
+      <article class="panel control"><span class="control-number">Slider 02</span><h3>Study rate</h3><p>What the waiter banks in prep per week — courses, reading, roadmap maintenance.</p><dl><dt>Proves</dt><dd>even generous study only delays the ship week; it never buys compounding.</dd><dt>Key detail</dt><dd>the ship week solves <code>w* = barStart / (study − drift)</code>.</dd></dl></article>
+      <article class="panel control"><span class="control-number">Slider 03</span><h3>Iteration cadence</h3><p>Weeks between shipped iterations once a track is shipping. Smaller is faster compounding.</p><dl><dt>Proves</dt><dd>at 6-week cadence the waiter ships late and still finishes ahead — cadence is the whole game.</dd><dt>Key detail</dt><dd>try the <em>Slow iteration</em> preset: verdict flips to <code>caught-up</code>.</dd></dl></article>
+      <article class="panel control"><span class="control-number">Slider 04</span><h3>Runway</h3><p>Weeks left on the calendar — the deadline column stamped 2027 at the right edge.</p><dl><dt>Proves</dt><dd>shorten it to 20 weeks and the waiter's projected ready week lands past the deadline.</dd><dt>Key detail</dt><dd><em>Compressed runway</em> reproduces exactly that.</dd></dl></article>
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <p class="eyebrow">Architecture</p>
+    <h2>How the demo is built</h2>
+    <div class="table-wrap panel" tabindex="0" role="region" aria-label="Architecture table — layer, behavior, evidence">
+      <table>
+        <thead><tr><th>Layer</th><th>Behavior</th><th>Evidence</th></tr></thead>
+        <tbody>
+          <tr><td>Simulation</td><td>Pure weekly-tick model — both tracks, the drifting bar, the verdict.</td><td><code>public/lab.mjs</code></td></tr>
+          <tr><td>Scenarios</td><td>Four named presets, including the treadmill that never ships.</td><td><code>public/scenarios.mjs</code></td></tr>
+          <tr><td>UI</td><td>Sliders, preset buttons, the twin-lane week ledger, verdict badge.</td><td><code>public/app.js</code></td></tr>
+          <tr><td>Server</td><td>Zero-dependency static host plus /health, /version, /api/simulate.</td><td><code>app/server.js</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <p class="eyebrow">Run locally</p>
+    <h2>Inspect the evidence</h2>
+    <pre class="code-block">npm test         # simulation + scenario + server suites
+npm run track    # CLI: weekly table for both tracks + verdict
+npm run check    # npm test
+npm start        # serve the lab on :3000</pre>
+    <p>Try <code>node scripts/track.mjs --scenario readiness-treadmill</code> to watch the waiter study all 64 weeks and ship nothing.</p>
+  </section>
+
+  <section class="guide-section panel">
+    <p class="eyebrow">Limits</p>
+    <h2>What this demo does not claim</h2>
+    <ul>
+      <li>Skill and "ready" are abstract units — real readiness is messier and partly unmeasurable.</li>
+      <li>Drift is a constant rate; real fields lurch, plateau, and sometimes slow down.</li>
+      <li>The waiter stops gaining from study at the ship week — a modeling choice that makes the mechanism legible, not a law.</li>
+      <li>Iteration gain is linear; real compounding depends on feedback quality, not just cadence.</li>
+      <li>A deadline of 64 weeks is illustrative — your runway is your own.</li>
+    </ul>
+    <p><a class="try" href="/">Return to Lab</a></p>
+  </section>
+</main>
+<!-- pb-shell --><a class="pb-shell" href="https://github.com/anhquanbd2021/2027-is-closer-than-it" title="2027-is-closer-than-it — an Article Playbook demo (view source)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="9" height="9" rx="2" fill="#2dd4bf"/><rect x="13" y="2" width="9" height="9" rx="2" fill="#2dd4bf" opacity=".45"/><rect x="2" y="13" width="9" height="9" rx="2" fill="#2dd4bf" opacity=".45"/><rect x="13" y="13" width="9" height="9" rx="4.5" fill="#2dd4bf"/></svg><b>2027-is-closer-than-it</b><i>DEMO</i></a><!-- pb-shell --><!-- pb-back --><a class="pb-back" id="pb-back" href="https://github.com/anhquanbd2021/2027-is-closer-than-it" title="Back to the article — 2027-is-closer-than-it">← Article <i>PLAYBOOK</i></a><script>(function(){var a=document.getElementById('pb-back');if(!a)return;var h=location.hostname;if(/^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/.test(h)){a.href='//'+h+':'+(/^(localhost|127\.0\.0\.1)$/.test(h)?'1234':'30082')+'/microsites/article.html?slug=2027-is-closer-than-it';}})();</script><!-- pb-back --></body>
+</html>

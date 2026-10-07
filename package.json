@@ -1,0 +1,16 @@
+{
+  "name": "2027-is-closer-than-it-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "2027 Is Closer Than It Lab — companion interactive demo",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node app/server.js",
+    "test": "node --test \"test/*.test.mjs\"",
+    "track": "node scripts/track.mjs",
+    "check": "npm test"
+  }
+}
